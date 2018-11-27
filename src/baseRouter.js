@@ -67,7 +67,7 @@ function routing(nextProps,prevState){
     return false;
   } else {
     dispatch({ type: "routing/LOCATION_CHANGE", payload: location });
-    dispatch({ type: location.pathname + location.search });
+    dispatch({ type: location.pathname , payload: location});
 
     return {
       pathname: location.pathname,

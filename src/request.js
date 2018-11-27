@@ -10,7 +10,7 @@ function LockRequest(url, options,lockOptions) {
   
     // 处理post请求
       if(!(REQUEST_LOCK_LIST.some((val)=>val === reqData))) {
-        REQUEST_LOCK_LIST.push(JSON.stringify(requestFullPOSTData));
+        REQUEST_LOCK_LIST.push(JSON.stringify(reqData));
         AutoUnlock(url,options,lockOptions);
         return true;
       }

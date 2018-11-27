@@ -13,7 +13,7 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 
 // saga工具
 import createSagaMiddleware from 'redux-saga'
-import { takeEvery, put } from "redux-saga/effects"
+import { takeEvery,take, put, call } from "redux-saga/effects"
 
 // 请求工具
 import initialRequest from "./request"
@@ -33,10 +33,12 @@ const SagaMiddleware = createSagaMiddleware();
 function createApp(options,model) {
 
     let __domProvider;
-    const __reducers = addRoutingModel(
-        modelReducersToStore(
-            model,
-            options.persist
+    const __reducers = addLoading(
+        addRoutingModel(
+            modelReducersToStore(
+                model,
+                options.persist
+            )
         )
     );
     const store = createStore(
@@ -86,6 +88,7 @@ function createApp(options,model) {
     }
     // 调用sagaMiddleWare的runsaga模块
     startEffects(model,store.dispatch);
+    startLoadingEffect();
 
     // 添加store监听
     // init Scriptions 添加订阅
@@ -222,12 +225,10 @@ function getReduxPersis(persist){
  * @param {Immutable} newState 
  */
 function checkPersist(namespace,persist,newState){
-    console.log(namespace,persist,newState,!persist.keys,!persist);
     if(!persist || !persist.keys){
         return;
     }
     if(persist.keys.indexOf(namespace) > -1){
-        console.log(namespace,persist,newState);
         switch (persist.env){
 
             // 默认是浏览器
@@ -303,6 +304,21 @@ function pushGeneratorArray(model,dispatch) {
     }
 }
 
+/**
+ * 
+ * @param {*} action 
+ */
+function startLoadingEffect(){
+    // 注册loading状态
+    SagaMiddleware.run(
+        function* (){
+            yield takeEvery("loading/insert", function *(action){
+                yield put({type: action.action.type, payload: action.action.payload})
+            })
+
+        }
+    );  
+}
 
 /**
  * 判断命名空间
@@ -330,5 +346,33 @@ function addRoutingModel(models){
     });
     return newModels;
 }
+
+/**
+ * 添加loading
+ */
+function addLoading(models){
+    const newModels = Object.assign(models,{
+
+        // loading的列表为List，防止多个tag重复
+        loading: (state = immutable.Set(),action)=>{
+            checkNameSpace(action);
+            const [namespace, actionType] = action.type.split("/");
+            if(namespace === "loading" && actionType === "insert"){
+
+                // 此处为两层action嵌套
+                return state.add(action.action.payload.tag);
+            }
+
+            if(namespace === "loading" && actionType === "delete"){
+
+                // 此处为一层action嵌套
+                return state.delete(action.payload.tag);
+            }
+            return state;
+        }
+    });
+    return newModels;
+}
+
 export {request};
 export default createApp
