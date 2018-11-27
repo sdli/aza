@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-effects": "npx babel ./src/effects --out-dir effects",
-    "build-router": "npx babel ./src/routers --out-dir router"
+    "build-router": "npx babel ./src/routers --out-dir router",
+    "build-lib": "npx babel ./src --out-dir lib"
   },
   "repository": {
     "type": "git",
