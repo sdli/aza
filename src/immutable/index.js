@@ -1,3 +1,4 @@
+import immutable from "immutable"
 export {
     version,
     Collection,
@@ -37,3 +38,4 @@ export {
     update,
     updateIn,
   } from "immutable"
+  export default immutable

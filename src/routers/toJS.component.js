@@ -78,4 +78,3 @@ export default (mapstatetoprops, mapdispatchtoprops) => {
     )(TOJS(WrappedComponent));
   };
 };
-

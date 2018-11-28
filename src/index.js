@@ -1,7 +1,7 @@
-import BaseRouter from "./baseRouter"
+import BaseRouter from "./routers/baseRouter"
 import history from "./history"
 import createApp , {request} from "./modelToStore"
-import immConnect from "./toJS.component"
+import immConnect from "./routers/toJS.component"
 import immutable from "immutable"
 
 export {BaseRouter}
