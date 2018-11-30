@@ -59,36 +59,47 @@ function UNLOCK(url, options) {
     }
 }
 
-export default (store,lockOptions)=>{
-    return (url,options)=>{
+export default ()=>{
+    let store,
+        lockOption;
 
-        // 请求加锁
-        if(!LockRequest(url,options,lockOptions)){
-            return Promise.reject().catch(()=>{})
+    return {
+        set: (storeInstance,lockOptions)=>{
+            store = storeInstance;
+            lockOption = lockOptions;
+        },
+        request: (url,options)=>{
+
+            // 请求加锁
+            if(!LockRequest(url,options,lockOption)){
+                return Promise.reject().catch(()=>{})
+            }
+    
+            return fetch(url,options)
+    
+                // 将404,401处理定位为报错
+                .then((response) => {
+                    if(response.ok){
+                        return response.json();
+                    }else{
+                        throw new Error(response.status);
+                    }
+                })
+    
+                // 正确的数据直接返回
+                .then(data => {
+                    UNLOCK(url,options);
+                    return data;
+                })
+    
+                // 错误的数据进行处理
+                // 此处添加了dispatch，可以为错误信息增加监听
+                .catch((err)=>{
+                    UNLOCK(url,options);
+                    if(store){
+                        store.dispatch({type: "request/" + err.message })
+                    }
+                });
         }
-
-        return fetch(url,options)
-
-            // 将404,401处理定位为报错
-            .then((response) => {
-                if(response.ok){
-                    return response.json();
-                }else{
-                    throw new Error(response.status);
-                }
-            })
-
-            // 正确的数据直接返回
-            .then(data => {
-                UNLOCK(url,options);
-                return data;
-            })
-
-            // 错误的数据进行处理
-            // 此处添加了dispatch，可以为错误信息增加监听
-            .catch((err)=>{
-                UNLOCK(url,options);
-                store.dispatch({type: "request/" + err.message })
-            });
     }
 }

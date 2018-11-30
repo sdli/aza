@@ -19,7 +19,7 @@ import { takeEvery,take, put, call } from "redux-saga/effects"
 import initialRequest from "./request"
 import { DH_CHECK_P_NOT_SAFE_PRIME } from 'constants';
 
-let request;
+let requestMethod = initialRequest();
 const SagaMiddleware = createSagaMiddleware();
 
 // 请求工具
@@ -82,17 +82,9 @@ function createApp(options,model) {
         )
     );
 
-    window.onbeforeunload = ()=>{
-        localStorage.set("cachedredux",JSON.stringify(store.getState()));
-        return "确定要刷新或关闭浏览器窗口？";
-    }
     // 调用sagaMiddleWare的runsaga模块
     startEffects(model,store.dispatch);
     startLoadingEffect();
-
-    // 添加store监听
-    // init Scriptions 添加订阅
-    // Subscriber(store,model);
     
     /**
      * 将store和provider渲染至dom
@@ -112,7 +104,7 @@ function createApp(options,model) {
         )
     }
 
-    this.request = request = initialRequest(store);
+    requestMethod.set(store,options.requestLock);
 }
 
 /**
@@ -208,11 +200,14 @@ function getReduxPersis(persist){
         switch (persist.env){
             case "browser":
                 storage = localStorage.getItem("REDUX/"+val);
-                store[val] = storage ? JSON.parse(storage) : {};
                 break;
             default:
                 storage = localStorage.getItem("REDUX/"+val);
-                store[val] = storage ? JSON.parse(storage) : {};
+
+        }
+
+        if(storage){
+            store[val] = JSON.parse(storage);
         }
     })
 
@@ -242,6 +237,7 @@ function checkPersist(namespace,persist,newState){
     }
     return;
 }
+
 /**
  * 生成generator方法
  */
@@ -347,6 +343,7 @@ function addRoutingModel(models){
     return newModels;
 }
 
+
 /**
  * 添加loading
  */
@@ -374,5 +371,7 @@ function addLoading(models){
     return newModels;
 }
 
-export {request};
-export default createApp
+const request = requestMethod.request;
+
+export { request };
+export default createApp;
