@@ -76,7 +76,10 @@ function routing(nextProps,prevState){
   }
 }
 
-const AppRouter = ({ routers }) => {
+const AppRouter = ({ routers, children }) => {
+  if(routers && children){
+    console.warn("同时使用routers和children时，将忽略children")
+  }
   return (
     <Router
       basename="/"
@@ -84,7 +87,7 @@ const AppRouter = ({ routers }) => {
       children={
         <div>
           <Route path="/" component={RoutingPage} />
-          {routers}
+          {routers || children}
         </div>
       }
     />
