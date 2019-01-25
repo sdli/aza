@@ -27,7 +27,7 @@ class Routing extends Component {
 
   // 查看监听方式
   static getDerivedStateFromProps(nextProps, prevState) {
-    return routing(nextProps,prevState) || prevState;
+    return routing(nextProps, prevState) || prevState;
   }
 
   // 查看是否需要更新
@@ -42,23 +42,18 @@ class Routing extends Component {
   }
 
   render() {
-    return (
-      <div>
-        {/* 这是routing模块 */}
-      </div>
-    );
+    return <div>{/* 这是routing模块 */}</div>;
   }
 }
 
 const RoutingPage = connect()(Routing);
 
-
 /**
  * 路由控制器
- * @param {*} nextProps 
- * @param {*} prevState 
+ * @param {*} nextProps
+ * @param {*} prevState
  */
-function routing(nextProps,prevState){
+function routing(nextProps, prevState) {
   const { history, dispatch } = nextProps;
   const { pathname, search } = prevState;
   const { location } = history;
@@ -67,7 +62,7 @@ function routing(nextProps,prevState){
     return false;
   } else {
     dispatch({ type: "routing/LOCATION_CHANGE", payload: location });
-    dispatch({ type: location.pathname , payload: location});
+    dispatch({ type: location.pathname, payload: location });
 
     return {
       pathname: location.pathname,
@@ -77,8 +72,8 @@ function routing(nextProps,prevState){
 }
 
 const AppRouter = ({ routers, children }) => {
-  if(routers && children){
-    console.warn("同时使用routers和children时，将忽略children")
+  if (routers && children) {
+    console.warn("同时使用routers和children时，将忽略children");
   }
   return (
     <Router
@@ -86,7 +81,7 @@ const AppRouter = ({ routers, children }) => {
       getUserConfirmation={getConfirmation}
       children={
         <div>
-          <Route path="/" component={RoutingPage} />
+          <Route path="/" render={props => <RoutingPage {...props} />} />
           {routers || children}
         </div>
       }

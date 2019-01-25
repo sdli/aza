@@ -38,38 +38,43 @@ const TOJS = WrappedComponent => wrappedComponentProps => {
   return <WrappedComponent {...propsJS} />;
 };
 
-
 /**
  * 生成一个dispatch方法和一个dispatchWithLoading的方法
- * @param {*} dispatch 
+ * @param {*} dispatch
  */
-function addDispatch(dispatch){
+function addDispatch(dispatch) {
   return {
     dispatch: dispatch,
-    dispatchWithLoading: (action)=>{
-      if(action.type && action.payload && action.payload.tag){
-        dispatch({type:"loading/insert", action})
-      }else{
-        throw new Error("发起loading的request时，需要填写tag，并保持该tag当前本页面的唯一性。")
+    dispatchWithLoading: action => {
+      if (action.type && action.payload && action.payload.tag) {
+        dispatch({ type: "loading/insert", action });
+      } else {
+        throw new Error(
+          "发起loading的request时，需要填写tag，并保持该tag当前本页面的唯一性。"
+        );
       }
     }
-  }
+  };
 }
-
 
 /**
  * 此方法将会在modelToStore中与store一起导出，一般情况不要直接使用
  */
 export default (mapstatetoprops, mapdispatchtoprops) => {
   const wrappedDispatchToProps = mapdispatchtoprops
-  ? 
-  (dispatch) => {
-      return Object.assign(mapdispatchtoprops(dispatch), addDispatch(dispatch))
-  }
-  : 
-  (dispatch)=>{
-      return addDispatch(dispatch)
-  };
+    ? dispatch => {
+        const dispathWithLoading = action => {
+          if (action.type && action.payload && action.payload.tag) {
+            dispatch({ type: "loading/insert", action });
+          } else {
+            throw new Error(
+              "发起loading的request时，需要填写tag，并保持该tag当前本页面的唯一性。"
+            );
+          }
+        };
+        return mapdispatchtoprops(dispatch, dispathWithLoading);
+      }
+    : null;
 
   return WrappedComponent => {
     return connect(

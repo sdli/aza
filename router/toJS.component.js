@@ -42,7 +42,7 @@ var TOJS = function TOJS(WrappedComponent) {
 };
 /**
  * 生成一个dispatch方法和一个dispatchWithLoading的方法
- * @param {*} dispatch 
+ * @param {*} dispatch
  */
 
 
@@ -68,10 +68,19 @@ function addDispatch(dispatch) {
 
 var _default = function _default(mapstatetoprops, mapdispatchtoprops) {
   var wrappedDispatchToProps = mapdispatchtoprops ? function (dispatch) {
-    return Object.assign(mapdispatchtoprops(dispatch), addDispatch(dispatch));
-  } : function (dispatch) {
-    return addDispatch(dispatch);
-  };
+    var dispathWithLoading = function dispathWithLoading(action) {
+      if (action.type && action.payload && action.payload.tag) {
+        dispatch({
+          type: "loading/insert",
+          action: action
+        });
+      } else {
+        throw new Error("发起loading的request时，需要填写tag，并保持该tag当前本页面的唯一性。");
+      }
+    };
+
+    return mapdispatchtoprops(dispatch, dispathWithLoading);
+  } : null;
   return function (WrappedComponent) {
     return (0, _reactRedux.connect)(mapstatetoprops, wrappedDispatchToProps)(TOJS(WrappedComponent));
   };
