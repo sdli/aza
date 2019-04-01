@@ -1,6 +1,6 @@
 {
   "name": "aza",
-  "version": "1.0.25",
+  "version": "1.0.27",
   "description": "A redux/react-redux/redux-immutable/react-router packs for building store and routers in react-apps.",
   "main": "index.js",
   "scripts": {

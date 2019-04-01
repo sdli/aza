@@ -72,6 +72,8 @@ export default () => {
       lockOption = lockOptions;
     },
     request: (url, options) => {
+      let succ = false;
+
       // 请求加锁
       if (!LockRequest(url, options, lockOption)) {
         return Promise.resolve(
@@ -101,6 +103,7 @@ export default () => {
           // 正确的数据直接返回
           .then(data => {
             UNLOCK(url, options);
+            succ = true;
             return data;
           })
 
@@ -108,15 +111,15 @@ export default () => {
           // 此处添加了dispatch，可以为错误信息增加监听
           .catch(err => {
             UNLOCK(url, options);
+            succ = true;
             if (store) {
               store.dispatch({ type: "request/" + err.message });
             }
           }),
         new Promise(resolve => {
-          console.log("进入计时器");
           setTimeout(
             () => {
-              if (store) {
+              if (store && !succ) {
                 store.dispatch({ type: "request/timeout" });
               }
               resolve({ code: "-2", msg: "timeout" });
